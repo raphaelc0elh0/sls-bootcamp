@@ -7,19 +7,7 @@ provider:
   runtime: nodejs12.x
   memorySize: 128
   environment:
-    AUTH0_PUBLIC_KEY: ${file(secret.pem)}
-
-custom:
-  esbuild:
-    bundle: true
-    minify: false
-    sourcemap: true
-    exclude: ['aws-sdk']
-    target: 'node14'
-    define: 
-      'require.resolve': undefined
-    platform: 'node'
-    concurrency: 10    
+    AUTH0_PUBLIC_KEY: ${file(secret.pem)}   
 
 functions:
   auth:
