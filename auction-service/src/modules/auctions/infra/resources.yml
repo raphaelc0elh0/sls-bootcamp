@@ -15,12 +15,12 @@ Resources:
         - AttributeName: id
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: status-ending_at
+        - IndexName: GSI-status-ending_at
           KeySchema:
             - AttributeName: status
               KeyType: HASH
             - AttributeName: ending_at
               KeyType: RANGE
           Projection:
-            ProjectionType: ALL
+            ProjectionType: ALL            
             

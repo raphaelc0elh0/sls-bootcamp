@@ -4,24 +4,28 @@ createAuction:
     - http:
         method: POST
         path: /auctions
+        authorizer: ${self:custom.authorizer.arn}
 listAuctions:
   handler: src/modules/auctions/lambda.listAuctions
   events:
     - http:
         method: GET
         path: /auctions
+        authorizer: ${self:custom.authorizer.arn}
 getAuction:
   handler: src/modules/auctions/lambda.getAuction
   events:
     - http:
         method: GET
         path: /auctions/{id}
+        authorizer: ${self:custom.authorizer.arn}
 placeBid:
   handler: src/modules/auctions/lambda.placeBid
   events:
     - http:
         method: PATCH
         path: /auctions/{id}/bid        
+        authorizer: ${self:custom.authorizer.arn}
 processAuctions:
   handler: src/modules/auctions/lambda.processAuctions
   # events:
