@@ -1,0 +1,28 @@
+createAuction:
+  handler: src/modules/auctions/lambda.createAuction
+  events:
+    - http:
+        method: POST
+        path: /auctions
+listAuctions:
+  handler: src/modules/auctions/lambda.listAuctions
+  events:
+    - http:
+        method: GET
+        path: /auctions
+getAuction:
+  handler: src/modules/auctions/lambda.getAuction
+  events:
+    - http:
+        method: GET
+        path: /auctions/{id}
+placeBid:
+  handler: src/modules/auctions/lambda.placeBid
+  events:
+    - http:
+        method: PATCH
+        path: /auctions/{id}/bid        
+processAuctions:
+  handler: src/modules/auctions/lambda.processAuctions
+  # events:
+  #   - schedule: rate(1 minute)

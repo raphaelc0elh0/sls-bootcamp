@@ -1,0 +1,51 @@
+service: auction-service
+frameworkVersion: '3'
+
+package:
+  individually: true
+
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: nodejs14.x
+  memorySize: 256
+  stage: ${opt:stage, 'dev'}
+  apiGateway:
+    minimumCompressionSize: 1024
+    shouldStartNameWithService: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - !GetAtt AuctionsTable.Arn
+        - !Join [ "/", [ !GetAtt AuctionsTable.Arn, "index", "status-ending_at" ] ]
+  
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000'
+    AUCTIONS_TABLE_NAME: !Ref AuctionsTable
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude: ['aws-sdk']
+    target: 'node14'
+    define: 
+      'require.resolve': undefined
+    platform: 'node'
+    concurrency: 10
+
+functions:
+  - ${file(./src/modules/auctions/infra/functions.yml)}
+
+resources:
+  - ${file(./src/modules/auctions/infra/resources.yml)}
+
+plugins: 
+  - serverless-esbuild
+  - serverless-iam-roles-per-function
+      
