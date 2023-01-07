@@ -18,17 +18,22 @@ provider:
       Action:
         - dynamodb:*
       Resource:
-        - ${self:custom.tables.auctions}
-        - !Join [ "/", [ "${self:custom.tables.auctions}", "index", "GSI-status-ending_at" ] ]
+        - ${self:custom.tables.auctions.arn}
+        - !Join [ "/", [ "${self:custom.tables.auctions.arn}", "index", "${self:custom.tables.auctions.index.byStatusEndingAt}" ] ]
   
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
     NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000'
-    AUCTIONS_TABLE_NAME: !Ref AuctionsTable
+    AUCTIONS_TABLE_NAME: ${self:custom.tables.auctions.name}
+    AUCTIONS_INDEX_STATUS_ENDING_AT: ${self:custom.tables.auctions.index.byStatusEndingAt}
 
 custom:
   tables:
-    auctions: !GetAtt AuctionsTable.Arn
+    auctions:
+      name: !Ref AuctionsTable
+      arn: !GetAtt AuctionsTable.Arn
+      index:
+        byStatusEndingAt: "GSI-status-ending_at"
   authorizer:
     name: auth-service-${self:provider.stage}-auth
     arn: arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:${self:custom.authorizer.name}

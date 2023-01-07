@@ -1,6 +1,6 @@
 import createHttpError from "http-errors";
 import AuctionsRepository from "./repository";
-import { Auction, CreateAuctionProps } from "./schema";
+import { Auction, CreateAuctionProps, PlaceBidProps } from "./schema";
 
 export default class AuctionsHTTPService {
   private repo: AuctionsRepository;
@@ -10,9 +10,9 @@ export default class AuctionsHTTPService {
   }
 
   async create(props: CreateAuctionProps) {
-    const { title } = props;
+    const { title, seller } = props;
 
-    return await this.repo.create({ title });
+    return await this.repo.create({ title, seller });
   }
 
   async closeAuctions() {
@@ -52,11 +52,21 @@ export default class AuctionsHTTPService {
     return await this.repo.scan();
   }
 
-  async placeBid(id: string, amount: number) {
+  async placeBid(id: string, props: PlaceBidProps) {
+    const { amount, bidder } = props;
+
     const auction = await this.getById(id);
 
     if (auction.status === "CLOSED") {
       throw new createHttpError.Forbidden(`Cannot bid on closed auctions`);
+    }
+
+    if (auction.seller === bidder) {
+      throw new createHttpError.Forbidden(`You cannot bid on your own auction`);
+    }
+
+    if (auction.highestBid.bidder === bidder) {
+      throw new createHttpError.Forbidden(`You are already the highest bidder`);
     }
 
     if (amount <= auction.highestBid.amount) {
@@ -65,7 +75,7 @@ export default class AuctionsHTTPService {
       );
     }
 
-    return await this.repo.patchBid(id, amount);
+    return await this.repo.patchBid(id, { amount, bidder });
   }
 }
 

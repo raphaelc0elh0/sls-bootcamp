@@ -8,8 +8,9 @@ import { placeBidSchema } from "./schemas/placeBidSchema";
 
 export const createAuction = httpMiddleware(async (event) => {
   const { title } = event.body as any;
+  const { email } = event.requestContext.authorizer;
 
-  const result = await new AuctionsService().create({ title });
+  const result = await new AuctionsService().create({ title, seller: email });
 
   return {
     statusCode: 201,
@@ -42,8 +43,9 @@ export const listAuctions = httpMiddleware(async (event) => {
 export const placeBid = httpMiddleware(async (event) => {
   const { id } = event.pathParameters;
   const { amount } = event.body as any;
+  const { email } = event.requestContext.authorizer;
 
-  await new AuctionsService().placeBid(id, amount);
+  await new AuctionsService().placeBid(id, { amount, bidder: email });
 
   return {
     statusCode: 200,

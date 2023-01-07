@@ -6,6 +6,7 @@ import { Auction, CreateAuctionProps } from "./schema";
 export default class AuctionsRepository {
   private documents = new DynamoDB.DocumentClient();
   private tableName = process.env.AUCTIONS_TABLE_NAME;
+  private byStatusEndingAt = process.env.AUCTIONS_INDEX_STATUS_ENDING_AT;
 
   async create(props: CreateAuctionProps) {
     const now = new Date();
@@ -20,6 +21,7 @@ export default class AuctionsRepository {
       ending_at: endDate.toISOString(),
       highestBid: {
         amount: 0,
+        bidder: null,
       },
     };
 
@@ -63,7 +65,7 @@ export default class AuctionsRepository {
     const result = await this.documents
       .query({
         TableName: this.tableName,
-        IndexName: "status-ending_at",
+        IndexName: this.byStatusEndingAt,
         KeyConditionExpression: "#status= :status",
         ExpressionAttributeValues: { ":status": status },
         ExpressionAttributeNames: { "#status": "status" },
@@ -79,7 +81,7 @@ export default class AuctionsRepository {
     const result = await this.documents
       .query({
         TableName: this.tableName,
-        IndexName: "status-ending_at",
+        IndexName: this.byStatusEndingAt,
         KeyConditionExpression: "#status= :status AND ending_at <= :now",
         ExpressionAttributeValues: {
           ":status": "OPEN",
@@ -94,14 +96,14 @@ export default class AuctionsRepository {
     return result.Items as Auction[];
   }
 
-  async patchBid(id: string, amount: number) {
+  async patchBid(id: string, bid: { amount: number; bidder: string }) {
     await this.documents
       .update({
         TableName: this.tableName,
         Key: { id },
-        UpdateExpression: "set highestBid.amount = :amount",
+        UpdateExpression: "set highestBid = :bid",
         ExpressionAttributeValues: {
-          ":amount": amount,
+          ":bid": bid,
         },
       })
       .promise();

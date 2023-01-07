@@ -6,7 +6,10 @@ export type Auction = {
   ending_at: string;
   highestBid: {
     amount: number;
+    bidder: string;
   };
+  seller: string;
 };
 
-export type CreateAuctionProps = Pick<Auction, "title">;
+export type CreateAuctionProps = Pick<Auction, "title" | "seller">;
+export type PlaceBidProps = Auction["highestBid"];
