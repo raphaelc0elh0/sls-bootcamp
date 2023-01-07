@@ -8,9 +8,13 @@
 # esbuild directories
 */.esbuild
 
-# dotenv
+# env
 .env.*
 .env
+secret.pem
 
 # vscode config
 .vscode
+
+# mac
+.DS_Store

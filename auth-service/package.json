@@ -1,0 +1,20 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "author": "Ariel Weinberger <ariel@codingly.io>",
+  "description": "Demonstration of protecting API gateway endpoints with auth0",
+  "license": "MIT",
+  "scripts": {
+    "deploy": "sls deploy --verbose --aws-profile udemy-serverless-bootcamp",
+    "remove": "sls remove --verbose --aws-profile udemy-serverless-bootcamp",
+    "logs": "sls logs -t --aws-profile udemy-serverless-bootcamp"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^8.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.11",
+    "serverless": "^3.0.0",
+    "serverless-esbuild": "^1.23.3"
+  }
+}
