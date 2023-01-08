@@ -1,2 +1,6 @@
 sendMail:
   handler: src/functions/sendMail.handler
+  events:
+    - sqs:
+        arn: ${self:custom.queues.mailQueue.arn}
+        batchSize: 1

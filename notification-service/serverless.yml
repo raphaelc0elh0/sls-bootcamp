@@ -18,12 +18,21 @@ provider:
       Action: 
         - ses:SendEmail
       Resource: arn:aws:ses:*
-  
+    - Effect: Allow
+      Action:
+        - sqs:ReceiveMessage
+      Resource: ${self:custom.queues.mailQueue.arn}
   environment:
+    REGION: ${self:provider.region}
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
     NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000'
 
 custom:
+  queues:
+    mailQueue:
+      name: !GetAtt MailQueue.QueueName
+      arn: !GetAtt MailQueue.Arn
+      url: !GetAtt MailQueue.QueueUrl
   esbuild:
     bundle: true
     minify: false
@@ -37,6 +46,9 @@ custom:
 
 functions:
   - ${file(./src/infra/functions.yml)}
+
+resources:
+  - ${file(./src/infra/resources/MailQueue.yml)}
 
 plugins: 
   - serverless-esbuild
