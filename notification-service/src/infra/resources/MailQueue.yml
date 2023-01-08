@@ -3,3 +3,13 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: MailQueue-${self:provider.stage}
+      
+Outputs:
+  MailQueueArn:
+    Value: ${self:custom.queues.mailQueue.arn}
+    Export:
+      Name: MailQueue-${self:provider.stage}-Arn
+  MailQueueUrl:
+    Value: ${self:custom.queues.mailQueue.url}
+    Export:
+      Name: MailQueue-${self:provider.stage}-Url

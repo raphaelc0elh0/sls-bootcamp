@@ -1,12 +1,15 @@
 import createHttpError from "http-errors";
 import AuctionsRepository from "./repository";
 import { Auction, CreateAuctionProps, PlaceBidProps } from "./schema";
+import AuctionsNotifier from "./notifier";
 
-export default class AuctionsHTTPService {
+export default class AuctionsService {
   private repo: AuctionsRepository;
+  private notifier: AuctionsNotifier;
 
   constructor() {
     this.repo = new AuctionsRepository();
+    this.notifier = new AuctionsNotifier();
   }
 
   async create(props: CreateAuctionProps) {
@@ -18,12 +21,16 @@ export default class AuctionsHTTPService {
   async closeAuctions() {
     try {
       const auctionsToClose = await this.list({ ended: true });
-      const auctionPromises = auctionsToClose.map((auction) =>
-        this.repo.update(auction, { status: "CLOSED" })
-      );
-      await Promise.all(auctionPromises);
+      for (const auction of auctionsToClose) {
+        await this.repo.update(auction, { status: "CLOSED" });
 
-      return auctionPromises.length;
+        const { amount } = auction.highestBid;
+        const type = amount !== 0 ? "SUCCESS" : "FAILED";
+
+        await this.notifier.notifyOnClosedAuction(auction, type);
+      }
+
+      return auctionsToClose.length;
     } catch (error) {
       console.log(error);
       throw new createHttpError.InternalServerError(error);

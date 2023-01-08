@@ -20,12 +20,16 @@ provider:
       Resource:
         - ${self:custom.tables.auctions.arn}
         - !Join [ "/", [ "${self:custom.tables.auctions.arn}", "index", "${self:custom.tables.auctions.index.byStatusEndingAt}" ] ]
-  
+    - Effect: Allow
+      Action:
+        - sqs:SendMessage
+      Resource: ${self:custom.queues.MailQueue.arn}
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
     NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000'
     AUCTIONS_TABLE_NAME: ${self:custom.tables.auctions.name}
     AUCTIONS_INDEX_STATUS_ENDING_AT: ${self:custom.tables.auctions.index.byStatusEndingAt}
+    MAIL_QUEUE_URL: ${self:custom.queues.MailQueue.url}
 
 custom:
   tables:
@@ -34,6 +38,10 @@ custom:
       arn: !GetAtt AuctionsTable.Arn
       index:
         byStatusEndingAt: "GSI-status-ending_at"
+  queues:
+    MailQueue:
+      arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
+      url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
   authorizer:
     name: auth-service-${self:provider.stage}-auth
     arn: arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:${self:custom.authorizer.name}
