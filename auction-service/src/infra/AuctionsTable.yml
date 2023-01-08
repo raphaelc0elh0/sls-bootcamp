@@ -22,5 +22,4 @@ Resources:
             - AttributeName: ending_at
               KeyType: RANGE
           Projection:
-            ProjectionType: ALL            
-            
+            ProjectionType: ALL        

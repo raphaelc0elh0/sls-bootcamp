@@ -18,22 +18,27 @@ provider:
       Action:
         - dynamodb:*
       Resource:
-        - ${self:custom.tables.auctions.arn}
-        - !Join [ "/", [ "${self:custom.tables.auctions.arn}", "index", "${self:custom.tables.auctions.index.byStatusEndingAt}" ] ]
+        - ${self:custom.tables.AuctionsTable.arn}
+        - !Join [ "/", [ "${self:custom.tables.AuctionsTable.arn}", "index", "${self:custom.tables.AuctionsTable.index.byStatusEndingAt}" ] ]
     - Effect: Allow
       Action:
         - sqs:SendMessage
       Resource: ${self:custom.queues.MailQueue.arn}
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+      Resource: arn:aws:s3:::${self:custom.buckets.AuctionsBucket.name}/*
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
     NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000'
-    AUCTIONS_TABLE_NAME: ${self:custom.tables.auctions.name}
-    AUCTIONS_INDEX_STATUS_ENDING_AT: ${self:custom.tables.auctions.index.byStatusEndingAt}
+    AUCTIONS_TABLE_NAME: ${self:custom.tables.AuctionsTable.name}
+    AUCTIONS_INDEX_STATUS_ENDING_AT: ${self:custom.tables.AuctionsTable.index.byStatusEndingAt}
     MAIL_QUEUE_URL: ${self:custom.queues.MailQueue.url}
+    AUCTIONS_BUCKET_NAME: ${self:custom.buckets.AuctionsBucket.name}
 
 custom:
   tables:
-    auctions:
+    AuctionsTable:
       name: !Ref AuctionsTable
       arn: !GetAtt AuctionsTable.Arn
       index:
@@ -42,6 +47,9 @@ custom:
     MailQueue:
       arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
       url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
+  buckets:
+    AuctionsBucket:
+      name: auctions-bucket-d88a4d2b4799bcd2ccdb2d2e2929f09d-${self:provider.stage}
   authorizer:
     name: auth-service-${self:provider.stage}-auth
     arn: arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:${self:custom.authorizer.name}
@@ -57,10 +65,11 @@ custom:
     concurrency: 10
 
 functions:
-  - ${file(./src/modules/auctions/infra/functions.yml)}
+  - ${file(./src/modules/auctions/functions.yml)}
 
 resources:
-  - ${file(./src/modules/auctions/infra/resources.yml)}
+  - ${file(./src/infra/AuctionsBucket.yml)}
+  - ${file(./src/infra/AuctionsTable.yml)}
 
 plugins: 
   - serverless-esbuild

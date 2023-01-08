@@ -48,8 +48,8 @@ export const placeBid = httpMiddleware(async (event) => {
   await new AuctionsService().placeBid(id, { amount, bidder: email });
 
   return {
-    statusCode: 200,
-    body: JSON.stringify("success"),
+    statusCode: 204,
+    body: null,
   };
 }).use(validator(placeBidSchema));
 
@@ -58,4 +58,11 @@ export const processAuctions = async () => {
   console.log({
     closedAuctions: closedPromisesLength,
   });
+};
+
+export const uploadAuctionPicture = async (event) => {
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ name: process.env.AUCTIONS_BUCKET_NAME }),
+  };
 };
