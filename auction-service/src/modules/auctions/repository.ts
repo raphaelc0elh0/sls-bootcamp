@@ -23,6 +23,7 @@ export default class AuctionsRepository {
         amount: 0,
         bidder: null,
       },
+      picture: null,
     };
 
     try {
@@ -123,5 +124,17 @@ export default class AuctionsRepository {
       .promise();
 
     return Item;
+  }
+
+  async patchField(id: string, fieldName: string, fieldValue: any) {
+    await this.documents
+      .update({
+        TableName: this.tableName,
+        Key: { id },
+        UpdateExpression: "SET #field = :value",
+        ExpressionAttributeNames: { "#field": fieldName },
+        ExpressionAttributeValues: { ":value": fieldValue },
+      })
+      .promise();
   }
 }

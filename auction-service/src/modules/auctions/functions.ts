@@ -5,6 +5,7 @@ import validator from "../../libs/validator";
 import { listAuctionsSchema } from "./schemas/listAuctionsSchema";
 import { createAuctionSchema } from "./schemas/createAuctionSchema";
 import { placeBidSchema } from "./schemas/placeBidSchema";
+import { uploadPictureSchema } from "./schemas/uploadPictureSchema";
 
 export const createAuction = httpMiddleware(async (event) => {
   const { title } = event.body as any;
@@ -60,9 +61,15 @@ export const processAuctions = async () => {
   });
 };
 
-export const uploadAuctionPicture = async (event) => {
+export const uploadAuctionPicture = httpMiddleware(async (event) => {
+  const { id } = event.pathParameters;
+  const { email } = event.requestContext.authorizer;
+  const base64 = event.body.replace(/^data:image\/[a-z]+;base64,/, "");
+
+  const result = await new AuctionsService().uploadPicture(id, email, base64);
+
   return {
     statusCode: 200,
-    body: JSON.stringify({ name: process.env.AUCTIONS_BUCKET_NAME }),
+    body: JSON.stringify({ Location: result.Location }),
   };
-};
+}).use(validator(uploadPictureSchema));

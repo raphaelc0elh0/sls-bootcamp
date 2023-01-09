@@ -8,6 +8,7 @@ export type Auction = {
     amount: number;
     bidder: string;
   };
+  picture: string;
   seller: string;
 };
 

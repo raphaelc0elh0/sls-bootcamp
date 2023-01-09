@@ -2,6 +2,9 @@ import createHttpError from "http-errors";
 import AuctionsRepository from "./repository";
 import { Auction, CreateAuctionProps, PlaceBidProps } from "./schema";
 import AuctionsNotifier from "./notifier";
+import { S3 } from "aws-sdk";
+
+const s3 = new S3();
 
 export default class AuctionsService {
   private repo: AuctionsRepository;
@@ -83,6 +86,34 @@ export default class AuctionsService {
     }
 
     return await this.repo.patchBid(id, { amount, bidder });
+  }
+
+  async uploadPicture(id: string, seller: string, image: string) {
+    const auction = await this.getById(id);
+    const buffer = Buffer.from(image, "base64");
+
+    if (auction.seller !== seller) {
+      throw new createHttpError.Forbidden(`You cannot set auction picture`);
+    }
+
+    try {
+      const result = await s3
+        .upload({
+          Bucket: process.env.AUCTIONS_BUCKET_NAME,
+          Key: `${auction.id}.jpg`,
+          Body: buffer,
+          ContentEncoding: "base64",
+          ContentType: "image/jpeg",
+        })
+        .promise();
+
+      await this.repo.patchField(auction.id, "picture", result.Location);
+
+      return result;
+    } catch (error) {
+      console.log(error);
+      throw new createHttpError.InternalServerError(error);
+    }
   }
 }
 
