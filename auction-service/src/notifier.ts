@@ -1,5 +1,5 @@
 import { SQS } from "aws-sdk";
-import { Auction } from "./schema";
+import { Auction } from "./types";
 
 const sqs = new SQS();
 const mailQueueUrl = process.env.MAIL_QUEUE_URL;

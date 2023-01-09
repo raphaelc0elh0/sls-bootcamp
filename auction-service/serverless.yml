@@ -65,11 +65,49 @@ custom:
     concurrency: 10
 
 functions:
-  - ${file(./src/modules/auctions/functions.yml)}
+  createAuction:
+    handler: src/functions.createAuction
+    events:
+      - http:
+          method: POST
+          path: /auctions
+          authorizer: ${self:custom.authorizer.arn}
+  listAuctions:
+    handler: src/functions.listAuctions
+    events:
+      - http:
+          method: GET
+          path: /auctions
+          authorizer: ${self:custom.authorizer.arn}
+  getAuction:
+    handler: src/functions.getAuction
+    events:
+      - http:
+          method: GET
+          path: /auctions/{id}
+          authorizer: ${self:custom.authorizer.arn}
+  placeBid:
+    handler: src/functions.placeBid
+    events:
+      - http:
+          method: PATCH
+          path: /auctions/{id}/bid        
+          authorizer: ${self:custom.authorizer.arn}
+  processAuctions:
+    handler: src/functions.processAuctions
+    # events:
+    #   - schedule: rate(1 minute)
+  uploadAuctionPicture:
+    handler: src/functions.uploadAuctionPicture  
+    events:
+      - http:
+          method: PATCH
+          path: /auctions/{id}/picture        
+          authorizer: ${self:custom.authorizer.arn}
 
 resources:
-  - ${file(./src/infra/AuctionsBucket.yml)}
-  - ${file(./src/infra/AuctionsTable.yml)}
+  - ${file(./resources/AuctionsBucket.yml)}
+  - ${file(./resources/AuctionsTable.yml)}
 
 plugins: 
   - serverless-esbuild

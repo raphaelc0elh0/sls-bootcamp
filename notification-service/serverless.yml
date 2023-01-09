@@ -45,10 +45,15 @@ custom:
     concurrency: 10
 
 functions:
-  - ${file(./src/infra/functions.yml)}
+  sendMail:
+    handler: src/functions/sendMail.handler
+    events:
+      - sqs:
+          arn: ${self:custom.queues.mailQueue.arn}
+          batchSize: 1
 
 resources:
-  - ${file(./src/infra/resources/MailQueue.yml)}
+  - ${file(./resources/MailQueue.yml)}
 
 plugins: 
   - serverless-esbuild

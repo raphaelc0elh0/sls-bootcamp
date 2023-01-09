@@ -1,7 +1,7 @@
 import httpMiddleware from "@libs/middleware";
-import { Auction } from "./schema";
+import { Auction } from "./types";
 import AuctionsService from "./service";
-import validator from "../../libs/validator";
+import validator from "./libs/validator";
 import { listAuctionsSchema } from "./schemas/listAuctionsSchema";
 import { createAuctionSchema } from "./schemas/createAuctionSchema";
 import { placeBidSchema } from "./schemas/placeBidSchema";

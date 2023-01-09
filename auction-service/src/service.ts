@@ -1,6 +1,6 @@
 import createHttpError from "http-errors";
 import AuctionsRepository from "./repository";
-import { Auction, CreateAuctionProps, PlaceBidProps } from "./schema";
+import { Auction, CreateAuctionProps, PlaceBidProps } from "./types";
 import AuctionsNotifier from "./notifier";
 import { S3 } from "aws-sdk";
 

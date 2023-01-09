@@ -1,7 +1,7 @@
 import { DynamoDB } from "aws-sdk";
 import { v4 as uuidV4 } from "uuid";
 import createHttpError from "http-errors";
-import { Auction, CreateAuctionProps } from "./schema";
+import { Auction, CreateAuctionProps } from "./types";
 
 export default class AuctionsRepository {
   private documents = new DynamoDB.DocumentClient();
